@@ -11,7 +11,7 @@ void MSLayers::Initialize(v8::Local<v8::Object> target) {
   Nan::SetIndexedPropertyHandler(tpl->InstanceTemplate(), IndexGetter, NULL, NULL, NULL, NULL);
   Nan::SetNamedPropertyHandler(tpl->InstanceTemplate(), NamedGetter, NULL, NULL, NULL, NULL);
 
-  target->Set(Nan::New("Layers").ToLocalChecked(), tpl->GetFunction());
+  target->Set(Nan::New("Layers").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
   constructor.Reset(tpl);
 }
 
@@ -45,7 +45,11 @@ v8::Local<v8::Value> MSLayers::NewInstance(mapObj *ptr) {
   MSLayers* obj = new MSLayers();
   obj->this_ = ptr;
   v8::Local<v8::Value> ext = Nan::New<v8::External>(obj);
-  return scope.Escape(Nan::New(constructor)->GetFunction()->NewInstance(1, &ext));
+
+  v8::Local<v8::Function> f = Nan::GetFunction(Nan::New(constructor)).ToLocalChecked();
+  Nan::MaybeLocal<v8::Object> maybe_local = Nan::NewInstance(f, 1, &ext);
+
+  return scope.Escape(maybe_local.ToLocalChecked());
 }
 
 NAN_INDEX_GETTER(MSLayers::IndexGetter) {

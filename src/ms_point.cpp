@@ -13,7 +13,7 @@ void MSPoint::Initialize(v8::Local<v8::Object> target) {
   Nan::SetPrototypeMethod(tpl, "project", Project);
   Nan::SetPrototypeMethod(tpl, "distanceToPoint", DistanceToPoint);
 
-  target->Set(Nan::New("Point").ToLocalChecked(), tpl->GetFunction());
+  target->Set(Nan::New("Point").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
   constructor.Reset(tpl);
 }
 
@@ -63,8 +63,8 @@ NAN_METHOD(MSPoint::New) {
 
   if (info.Length() == 2) {
     if (info[0]->IsNumber() && info[1]->IsNumber()) {
-      x = info[0]->NumberValue();
-      y = info[1]->NumberValue();
+      x = info[0]->NumberValue(Nan::GetCurrentContext()).ToChecked();
+      y = info[1]->NumberValue(Nan::GetCurrentContext()).ToChecked();
     } else {
       Nan::ThrowTypeError("Points take numeric 2 arguments, x and y.");
       return;
@@ -85,7 +85,11 @@ v8::Local<v8::Value> MSPoint::NewInstance(pointObj *ptr) {
   MSPoint* obj = new MSPoint();
   obj->this_ = ptr;
   v8::Local<v8::Value> ext = Nan::New<v8::External>(obj);
-  return scope.Escape(Nan::New(constructor)->GetFunction()->NewInstance(1, &ext));
+
+  v8::Local<v8::Function> f = Nan::GetFunction(Nan::New(constructor)).ToLocalChecked();
+  Nan::MaybeLocal<v8::Object> maybe_local = Nan::NewInstance(f, 1, &ext);
+
+  return scope.Escape(maybe_local.ToLocalChecked());
 }
 
 NAN_GETTER(MSPoint::PropertyGetter) {
@@ -101,9 +105,9 @@ NAN_GETTER(MSPoint::PropertyGetter) {
 NAN_SETTER(MSPoint::PropertySetter) {
   MSPoint *obj = Nan::ObjectWrap::Unwrap<MSPoint>(info.Holder());
   if (STRCMP(property, "x")) {
-    obj->this_->x = value->NumberValue();
+    obj->this_->x = value->NumberValue(Nan::GetCurrentContext()).ToChecked();
   } else if (STRCMP(property, "y")) {
-    obj->this_->y = value->NumberValue();
+    obj->this_->y = value->NumberValue(Nan::GetCurrentContext()).ToChecked();
   }
 }
 

@@ -40,7 +40,7 @@ void MSMap::Initialize(v8::Local<v8::Object> target) {
   RO_ATTR(tpl, "extent", PropertyGetter);
   RO_ATTR(tpl, "layers", PropertyGetter);
 
-  target->Set(Nan::New("Map").ToLocalChecked(), tpl->GetFunction());
+  target->Set(Nan::New("Map").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
   constructor.Reset(tpl);
 }
 
@@ -104,7 +104,11 @@ v8::Local<v8::Value> MSMap::NewInstance(mapObj *ptr) {
   MSMap* obj = new MSMap();
   obj->this_ = ptr;
   v8::Local<v8::Value> ext = Nan::New<v8::External>(obj);
-  return scope.Escape(Nan::New(constructor)->GetFunction()->NewInstance(1, &ext));
+  
+  v8::Local<v8::Function> f = Nan::GetFunction(Nan::New(constructor)).ToLocalChecked();
+  Nan::MaybeLocal<v8::Object> maybe_local = Nan::NewInstance(f, 1, &ext);
+
+  return scope.Escape(maybe_local.ToLocalChecked());
 }
 
 NAN_METHOD(MSMap::Clone) {
@@ -168,7 +172,7 @@ NAN_METHOD(MSMap::InsertLayer) {
     return;
   }
 
-  obj = info[0]->ToObject();
+  obj = info[0]->ToObject(Nan::GetCurrentContext()).ToLocalChecked();
 
   if (obj->IsNull() || obj->IsUndefined() || !Nan::New(MSLayer::constructor)->HasInstance(obj)) {
     Nan::ThrowTypeError("first argument to project must be Layer object");
@@ -351,20 +355,20 @@ NAN_SETTER(MSMap::PropertySetter) {
   MSMap *map = Nan::ObjectWrap::Unwrap<MSMap>(info.Holder());
 
   if (STRCMP(property, "width")) {
-    map->this_->width = value->Int32Value();
+    map->this_->width = value->Int32Value(Nan::GetCurrentContext()).ToChecked();
   } else if (STRCMP(property, "height")) {
-    map->this_->height = value->Int32Value();
+    map->this_->height = value->Int32Value(Nan::GetCurrentContext()).ToChecked();
   } else if (STRCMP(property, "maxsize")) {
-    map->this_->maxsize = value->Int32Value();
+    map->this_->maxsize = value->Int32Value(Nan::GetCurrentContext()).ToChecked();
   } else if (STRCMP(property, "units")) {
-    int32_t units = value->Int32Value();
+    int32_t units = value->Int32Value(Nan::GetCurrentContext()).ToChecked();
     if (units >= MS_INCHES && units <= MS_NAUTICALMILES) {
       map->this_->units = (MS_UNITS) units;
     }
   } else if (STRCMP(property, "resolution")) {
-    map->this_->resolution = value->NumberValue();
+    map->this_->resolution = value->NumberValue(Nan::GetCurrentContext()).ToChecked();
   } else if (STRCMP(property, "defresolution")) {
-    map->this_->defresolution = value->NumberValue();
+    map->this_->defresolution = value->NumberValue(Nan::GetCurrentContext()).ToChecked();
   } else if (STRCMP(property, "name")) {
     REPLACE_STRING(map->this_->name, value);
   } else if (STRCMP(property, "imagetype")) {

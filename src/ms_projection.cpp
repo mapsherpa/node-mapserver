@@ -10,7 +10,7 @@ void MSProjection::Initialize(v8::Local<v8::Object> target) {
   RO_ATTR(tpl, "units", Units);
   RW_ATTR(tpl, "projString", ProjString, SetProjString);
 
-  target->Set(Nan::New("Projection").ToLocalChecked(), tpl->GetFunction());
+  target->Set(Nan::New("Projection").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
   constructor.Reset(tpl);
 }
 
@@ -79,7 +79,11 @@ v8::Local<v8::Value> MSProjection::NewInstance(projectionObj *ptr) {
   MSProjection* obj = new MSProjection();
   obj->this_ = ptr;
   v8::Local<v8::Value> ext = Nan::New<v8::External>(obj);
-  return scope.Escape(Nan::New(constructor)->GetFunction()->NewInstance(1, &ext));
+
+  v8::Local<v8::Function> f = Nan::GetFunction(Nan::New(constructor)).ToLocalChecked();
+  Nan::MaybeLocal<v8::Object> maybe_local = Nan::NewInstance(f, 1, &ext);
+
+  return scope.Escape(maybe_local.ToLocalChecked());
 }
 
 NAN_GETTER(MSProjection::Units) {

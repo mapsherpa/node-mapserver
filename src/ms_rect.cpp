@@ -14,7 +14,7 @@ void MSRect::Initialize(v8::Local<v8::Object> target) {
 
   Nan::SetPrototypeMethod(tpl, "project", Project);
 
-  target->Set(Nan::New("Rect").ToLocalChecked(), tpl->GetFunction());
+  target->Set(Nan::New("Rect").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
   constructor.Reset(tpl);
 }
 
@@ -84,10 +84,10 @@ NAN_METHOD(MSRect::New) {
       Nan::ThrowTypeError("Rect constructor requires four numeric values");
       return;
     }
-    double minx = info[0]->NumberValue();
-    double miny = info[1]->NumberValue();
-    double maxx = info[2]->NumberValue();
-    double maxy = info[3]->NumberValue();
+    double minx = info[0]->NumberValue(Nan::GetCurrentContext()).ToChecked();
+    double miny = info[1]->NumberValue(Nan::GetCurrentContext()).ToChecked();
+    double maxx = info[2]->NumberValue(Nan::GetCurrentContext()).ToChecked();
+    double maxy = info[3]->NumberValue(Nan::GetCurrentContext()).ToChecked();
     /* coerce correct extent */
     if (minx > maxx) {
       t = maxx;
@@ -119,7 +119,11 @@ v8::Local<v8::Value> MSRect::NewInstance(rectObj *ptr) {
   MSRect* obj = new MSRect();
   obj->this_ = ptr;
   v8::Local<v8::Value> ext = Nan::New<v8::External>(obj);
-  return scope.Escape(Nan::New(constructor)->GetFunction()->NewInstance(1, &ext));
+
+  v8::Local<v8::Function> f = Nan::GetFunction(Nan::New(constructor)).ToLocalChecked();
+  Nan::MaybeLocal<v8::Object> maybe_local = Nan::NewInstance(f, 1, &ext);
+
+  return scope.Escape(maybe_local.ToLocalChecked());
 }
 
 NAN_GETTER(MSRect::PropertyGetter) {
@@ -140,13 +144,13 @@ NAN_SETTER(MSRect::PropertySetter) {
   MSRect *rect = Nan::ObjectWrap::Unwrap<MSRect>(info.Holder());
 
   if (STRCMP(property, "minx")) {
-    rect->this_->minx = value->NumberValue();
+    rect->this_->minx = value->NumberValue(Nan::GetCurrentContext()).ToChecked();
   } else if (STRCMP(property, "miny")) {
-    rect->this_->miny = value->NumberValue();
+    rect->this_->miny = value->NumberValue(Nan::GetCurrentContext()).ToChecked();
   } else if (STRCMP(property, "maxx")) {
-    rect->this_->maxx = value->NumberValue();
+    rect->this_->maxx = value->NumberValue(Nan::GetCurrentContext()).ToChecked();
   } else if (STRCMP(property, "maxy")) {
-    rect->this_->maxy = value->NumberValue();
+    rect->this_->maxy = value->NumberValue(Nan::GetCurrentContext()).ToChecked();
   }
 }
 

@@ -26,7 +26,7 @@ void MSLayer::Initialize(v8::Local<v8::Object> target) {
   RO_ATTR(tpl, "connectiontype", PropertyGetter);
   RO_ATTR(tpl, "metadata", PropertyGetter);
 
-  target->Set(Nan::New("Layer").ToLocalChecked(), tpl->GetFunction());
+  target->Set(Nan::New("Layer").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
   constructor.Reset(tpl);
 }
 
@@ -73,7 +73,11 @@ v8::Local<v8::Value> MSLayer::NewInstance(layerObj *ptr) {
   MSLayer* obj = new MSLayer();
   obj->this_ = ptr;
   v8::Local<v8::Value> ext = Nan::New<v8::External>(obj);
-  return scope.Escape(Nan::New(constructor)->GetFunction()->NewInstance(1, &ext));
+  
+  v8::Local<v8::Function> f = Nan::GetFunction(Nan::New(constructor)).ToLocalChecked();
+  Nan::MaybeLocal<v8::Object> maybe_local = Nan::NewInstance(f, 1, &ext);
+
+  return scope.Escape(maybe_local.ToLocalChecked());
 }
 
 NAN_GETTER(MSLayer::PropertyGetter) {
@@ -113,20 +117,20 @@ NAN_SETTER(MSLayer::PropertySetter) {
   if (STRCMP(property, "name")) {
     REPLACE_STRING(obj->this_->name, value)
   } else if (STRCMP(property, "status")) {
-    obj->this_->status = value->NumberValue();
+    obj->this_->status = value->NumberValue(Nan::GetCurrentContext()).ToChecked();
   } else if (STRCMP(property, "minscaledenom")) {
-    obj->this_->minscaledenom = value->NumberValue();
+    obj->this_->minscaledenom = value->NumberValue(Nan::GetCurrentContext()).ToChecked();
   } else if (STRCMP(property, "maxscaledenom")) {
-    obj->this_->maxscaledenom = value->NumberValue();
+    obj->this_->maxscaledenom = value->NumberValue(Nan::GetCurrentContext()).ToChecked();
   } else if (STRCMP(property, "units")) {
-    int32_t units = value->Int32Value();
+    int32_t units = value->Int32Value(Nan::GetCurrentContext()).ToChecked();
     if (units >= MS_INCHES && units <= MS_NAUTICALMILES) {
       obj->this_->units = (MS_UNITS) units;
     }
   } else if (STRCMP(property, "projection")) {
     msLoadProjectionString(&(obj->this_->projection), TOSTR(value));
   } else if (STRCMP(property, "type")) {
-    int32_t type = value->Int32Value();
+    int32_t type = value->Int32Value(Nan::GetCurrentContext()).ToChecked();
     if (type >= MS_LAYER_ANNOTATION && type <= MS_LAYER_TILEINDEX) {
       obj->this_->type = (MS_LAYER_TYPE) type;
     }

@@ -15,7 +15,7 @@ void MSError::Initialize(v8::Local<v8::Object> target) {
       , NULL
       , MSError::NamedPropertyEnumerator);
 
-  target->Set(Nan::New("MSError").ToLocalChecked(), tpl->GetFunction());
+  target->Set(Nan::New("MSError").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
   constructor.Reset(tpl);
 }
 
@@ -49,7 +49,11 @@ v8::Local<v8::Value> MSError::NewInstance(errorObj *err_ptr) {
   MSError* err = new MSError();
   err->this_ = err_ptr;
   v8::Local<v8::Value> ext = Nan::New<v8::External>(err);
-  return scope.Escape(Nan::New(constructor)->GetFunction()->NewInstance(1, &ext));
+
+  v8::Local<v8::Function> f = Nan::GetFunction(Nan::New(constructor)).ToLocalChecked();
+  Nan::MaybeLocal<v8::Object> maybe_local = Nan::NewInstance(f, 1, &ext);
+
+  return scope.Escape(maybe_local.ToLocalChecked());
 }
 
 NAN_PROPERTY_GETTER(MSError::NamedPropertyGetter) {

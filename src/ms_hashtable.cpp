@@ -15,7 +15,7 @@ void MSHashTable::Initialize(v8::Local<v8::Object> target) {
       , NULL
       , NULL);
 
-  target->Set(Nan::New("Hashtable").ToLocalChecked(), tpl->GetFunction());
+  target->Set(Nan::New("Hashtable").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
   constructor.Reset(tpl);
 }
 
@@ -49,7 +49,11 @@ v8::Local<v8::Value> MSHashTable::NewInstance(hashTableObj *ptr) {
   MSHashTable* obj = new MSHashTable();
   obj->this_ = ptr;
   v8::Local<v8::Value> ext = Nan::New<v8::External>(obj);
-  return scope.Escape(Nan::New(constructor)->GetFunction()->NewInstance(1, &ext));
+
+  v8::Local<v8::Function> f = Nan::GetFunction(Nan::New(constructor)).ToLocalChecked();
+  Nan::MaybeLocal<v8::Object> maybe_local = Nan::NewInstance(f, 1, &ext);
+
+  return scope.Escape(maybe_local.ToLocalChecked());
 }
 
 NAN_PROPERTY_GETTER(MSHashTable::NamedPropertyGetter) {
@@ -64,7 +68,7 @@ NAN_PROPERTY_GETTER(MSHashTable::NamedPropertyGetter) {
 
 NAN_PROPERTY_SETTER(MSHashTable::NamedPropertySetter) {
   MSHashTable *table = Nan::ObjectWrap::Unwrap<MSHashTable>(info.Holder());
-  msInsertHashTable(table->this_, *v8::String::Utf8Value(property), TOSTR(value));
+  msInsertHashTable(table->this_, *v8::String::Utf8Value(v8::Isolate::GetCurrent(), property), TOSTR(value));
   info.GetReturnValue().Set(value);
 }
 

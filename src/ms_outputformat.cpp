@@ -15,7 +15,7 @@ void MSOutputFormat::Initialize(v8::Local<v8::Object> target) {
   RO_ATTR(tpl, "imagemode", PropertyGetter);
   RO_ATTR(tpl, "transparent", PropertyGetter);
 
-  target->Set(Nan::New("OutputFormat").ToLocalChecked(), tpl->GetFunction());
+  target->Set(Nan::New("OutFormat").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
   constructor.Reset(tpl);
 }
 
@@ -72,7 +72,11 @@ v8::Local<v8::Value> MSOutputFormat::NewInstance(outputFormatObj *of_ptr) {
   MSOutputFormat* of = new MSOutputFormat();
   of->this_ = of_ptr;
   v8::Local<v8::Value> ext = Nan::New<v8::External>(of);
-  return scope.Escape(Nan::New(constructor)->GetFunction()->NewInstance(1, &ext));
+  
+  v8::Local<v8::Function> f = Nan::GetFunction(Nan::New(constructor)).ToLocalChecked();
+  Nan::MaybeLocal<v8::Object> maybe_local = Nan::NewInstance(f, 1, &ext);
+
+  return scope.Escape(maybe_local.ToLocalChecked());
 }
 
 NAN_GETTER(MSOutputFormat::PropertyGetter) {

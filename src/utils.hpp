@@ -4,11 +4,11 @@
 #define REPLACE_STRING(TARGET, VALUE)                                   \
   if (VALUE->IsString()) {                                              \
     msFree(TARGET);                                                     \
-    TARGET = strdup(*v8::String::Utf8Value((VALUE)->ToString()));                    \
+    TARGET = strdup(*v8::String::Utf8Value(v8::Isolate::GetCurrent(),(VALUE)->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())));                    \
   }
 
 #define STRCMP(A, B) \
-  !std::strcmp(*v8::String::Utf8Value(A), B)
+  !std::strcmp(*v8::String::Utf8Value(v8::Isolate::GetCurrent(),A), B)
 
 #define ISSTR(INFO, N) \
   (INFO.Length() > N && INFO[N]->IsString())
@@ -16,7 +16,7 @@
 #define ISNUMERIC(INFO, N) \
   (INFO.Length() > N && INFO[N]->IsNumber())
 
-#define TOSTR(VALUE) (*v8::String::Utf8Value((VALUE)->ToString()))
+#define TOSTR(VALUE) (*v8::String::Utf8Value(v8::Isolate::GetCurrent(), (VALUE)->ToString(Nan::GetCurrentContext()).FromMaybe(v8::Local<v8::String>())))
 
 #define RO_ATTR(tpl, name, get) \
   Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New<v8::String>(name).ToLocalChecked(), get);
