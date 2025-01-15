@@ -23,7 +23,10 @@ LAYER
   STATUS ON
   CLASS
     NAME "Graticule"
-    COLOR 0 0 0
+    STYLE
+      COLOR 0 0 0
+      WIDTH 1
+    END
     LABEL
       COLOR  255 0 0
       TYPE BITMAP
@@ -50,7 +53,10 @@ LAYER
   STATUS ON
   CLASS
     NAME "Graticule"
-    COLOR 0 0 0
+    STYLE
+      COLOR 0 0 0
+      WIDTH 1
+    END
     LABEL
       COLOR  255 0 0
       TYPE BITMAP

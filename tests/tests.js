@@ -588,7 +588,18 @@ describe('mapserver', function() {
         assert.ok(false, 'Error drawing map.');
       } else {
         labels = map.getLabelCache();
-        var numLabels = mapserver.getVersionInt() < 60500 ? 109 : 119;
+        var ms_version = mapserver.getVersionInt();
+        var numLabels = null;
+        
+        if (ms_version < 60500){
+          numLabels = 109;
+        } else if (ms_version == 70004){
+          numLabels = 119;
+        } else if (ms_version == 80002){
+          numLabels = 111;
+        } else {
+          // don't know numbers for other versions
+        }
 
         assert.equal(labels.length, numLabels, 'Does not have the right number of labels, expected (' + numLabels + ', got ' + labels.length);
         done();
