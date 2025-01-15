@@ -15,7 +15,7 @@ void MSHashTable::Initialize(v8::Local<v8::Object> target) {
       , NULL
       , NULL);
 
-  target->Set(Nan::New("Hashtable").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
+  target->Set(Nan::GetCurrentContext(), Nan::New("Hashtable").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
   constructor.Reset(tpl);
 }
 
@@ -58,7 +58,7 @@ v8::Local<v8::Value> MSHashTable::NewInstance(hashTableObj *ptr) {
 
 NAN_PROPERTY_GETTER(MSHashTable::NamedPropertyGetter) {
   MSHashTable *table = Nan::ObjectWrap::Unwrap<MSHashTable>(info.Holder());
-  char *value = msLookupHashTable(table->this_, TOSTR(property));
+  const char *value = msLookupHashTable(table->this_, TOSTR(property));
   if (value == NULL){
     info.GetReturnValue().Set(Nan::Undefined());
     return;

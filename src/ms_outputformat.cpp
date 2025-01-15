@@ -15,7 +15,7 @@ void MSOutputFormat::Initialize(v8::Local<v8::Object> target) {
   RO_ATTR(tpl, "imagemode", PropertyGetter);
   RO_ATTR(tpl, "transparent", PropertyGetter);
 
-  target->Set(Nan::New("OutFormat").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
+  target->Set(Nan::GetCurrentContext(), Nan::New("OutputFormat").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
   constructor.Reset(tpl);
 }
 
@@ -45,7 +45,7 @@ NAN_METHOD(MSOutputFormat::New) {
     Nan::ThrowTypeError("MSOutputFormat requires two string arguments");
   }
 
-  outputFormatObj *format = msCreateDefaultOutputFormat(NULL, TOSTR(info[0]), TOSTR(info[1]));
+  outputFormatObj *format = msCreateDefaultOutputFormat(NULL, TOSTR(info[0]), TOSTR(info[1]), NULL);
 
   /* in the case of unsupported formats, msCreateDefaultOutputFormat
      should return NULL */

@@ -25,6 +25,6 @@
   Nan::SetAccessor(tpl->InstanceTemplate(), Nan::New<v8::String>(name).ToLocalChecked(), get, set);
 
 #define NODE_MAPSERVER_DEFINE_CONSTANT(t, n, v) \
-  (t)->Set(Nan::New<v8::String>(n).ToLocalChecked(), Nan::New<v8::Number>(v));
+  (t)->Set(Nan::GetCurrentContext(), Nan::New<v8::String>(n).ToLocalChecked(), Nan::New<v8::Number>(v));
 
 #endif

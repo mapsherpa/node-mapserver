@@ -14,7 +14,7 @@ void MSRect::Initialize(v8::Local<v8::Object> target) {
 
   Nan::SetPrototypeMethod(tpl, "project", Project);
 
-  target->Set(Nan::New("Rect").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
+  target->Set(Nan::GetCurrentContext(), Nan::New("Rect").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
   constructor.Reset(tpl);
 }
 

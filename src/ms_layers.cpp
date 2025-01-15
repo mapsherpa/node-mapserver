@@ -11,7 +11,7 @@ void MSLayers::Initialize(v8::Local<v8::Object> target) {
   Nan::SetIndexedPropertyHandler(tpl->InstanceTemplate(), IndexGetter, NULL, NULL, NULL, NULL);
   Nan::SetNamedPropertyHandler(tpl->InstanceTemplate(), NamedGetter, NULL, NULL, NULL, NULL);
 
-  target->Set(Nan::New("Layers").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
+  target->Set(Nan::GetCurrentContext(), Nan::New("Layers").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
   constructor.Reset(tpl);
 }
 

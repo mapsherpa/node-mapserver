@@ -40,7 +40,7 @@ void MSMap::Initialize(v8::Local<v8::Object> target) {
   RO_ATTR(tpl, "extent", PropertyGetter);
   RO_ATTR(tpl, "layers", PropertyGetter);
 
-  target->Set(Nan::New("Map").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
+  target->Set(Nan::GetCurrentContext(), Nan::New("Map").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
   constructor.Reset(tpl);
 }
 
@@ -78,13 +78,13 @@ NAN_METHOD(MSMap::New) {
       Nan::ThrowTypeError("Map constructor takes one or two string arguments");
       return;
     }
-    map = msLoadMap(TOSTR(info[0]), TOSTR(info[1]));
+    map = msLoadMap(TOSTR(info[0]), TOSTR(info[1]), NULL);
   } else if (info.Length() == 1) {
     if (!ISSTR(info, 0)) {
       Nan::ThrowTypeError("Map constructor takes one or two string arguments");
       return;
     }
-    map = msLoadMap(TOSTR(info[0]), NULL);
+    map = msLoadMap(TOSTR(info[0]), NULL, NULL);
   } else {
     map = msNewMapObj();
   }
@@ -207,8 +207,7 @@ NAN_METHOD(MSMap::SelectOutputFormat) {
     Nan::ThrowError("Output format not supported.");
     return;
   }
-  msApplyOutputFormat(&(map->this_->outputformat), format, MS_NOOVERRIDE,
-      MS_NOOVERRIDE, MS_NOOVERRIDE );
+  msApplyOutputFormat(&(map->this_->outputformat), format, MS_NOOVERRIDE);
 }
 
 NAN_METHOD(MSMap::SetSymbolSet) {
