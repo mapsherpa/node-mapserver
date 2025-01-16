@@ -15,7 +15,7 @@ void MSHashTable::Initialize(v8::Local<v8::Object> target) {
       , NULL
       , NULL);
 
-  target->Set(Nan::GetCurrentContext(), Nan::New("Hashtable").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
+  target->Set(Nan::GetCurrentContext(), Nan::New("Hashtable").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked()).Check();
   constructor.Reset(tpl);
 }
 

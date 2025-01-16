@@ -15,7 +15,7 @@ void MSOutputFormat::Initialize(v8::Local<v8::Object> target) {
   RO_ATTR(tpl, "imagemode", PropertyGetter);
   RO_ATTR(tpl, "transparent", PropertyGetter);
 
-  target->Set(Nan::GetCurrentContext(), Nan::New("OutputFormat").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
+  target->Set(Nan::GetCurrentContext(), Nan::New("OutputFormat").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked()).Check();
   constructor.Reset(tpl);
 }
 

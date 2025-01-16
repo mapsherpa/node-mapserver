@@ -26,7 +26,7 @@ void MSLayer::Initialize(v8::Local<v8::Object> target) {
   RO_ATTR(tpl, "connectiontype", PropertyGetter);
   RO_ATTR(tpl, "metadata", PropertyGetter);
 
-  target->Set(Nan::GetCurrentContext(), Nan::New("Layer").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
+  target->Set(Nan::GetCurrentContext(), Nan::New("Layer").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked()).Check();
   constructor.Reset(tpl);
 }
 
@@ -154,31 +154,31 @@ NAN_METHOD(MSLayer::GetGridIntersectionCoordinates) {
 
   for (i=0; i<values->nLeft; i++) {
     val = Nan::New<v8::Object>();
-    val->Set(Nan::GetCurrentContext(), Nan::New("x").ToLocalChecked(), Nan::New(values->pasLeft[i].x));
-    val->Set(Nan::GetCurrentContext(), Nan::New("y").ToLocalChecked(), Nan::New(values->pasLeft[i].y));
-    val->Set(Nan::GetCurrentContext(), Nan::New("label").ToLocalChecked(), Nan::New(values->papszLeftLabels[i]).ToLocalChecked());
-    left->Set(Nan::GetCurrentContext(), i, val);
+    val->Set(Nan::GetCurrentContext(), Nan::New("x").ToLocalChecked(), Nan::New(values->pasLeft[i].x)).Check();
+    val->Set(Nan::GetCurrentContext(), Nan::New("y").ToLocalChecked(), Nan::New(values->pasLeft[i].y)).Check();
+    val->Set(Nan::GetCurrentContext(), Nan::New("label").ToLocalChecked(), Nan::New(values->papszLeftLabels[i]).ToLocalChecked()).Check();
+    left->Set(Nan::GetCurrentContext(), i, val).Check();
   }
   for (i=0; i<values->nTop; i++) {
     val = Nan::New<v8::Object>();
-    val->Set(Nan::GetCurrentContext(), Nan::New("x").ToLocalChecked(), Nan::New(values->pasTop[i].x));
-    val->Set(Nan::GetCurrentContext(), Nan::New("y").ToLocalChecked(), Nan::New(values->pasTop[i].y));
-    val->Set(Nan::GetCurrentContext(), Nan::New("label").ToLocalChecked(), Nan::New(values->papszTopLabels[i]).ToLocalChecked());
-    top->Set(Nan::GetCurrentContext(), i, val);
+    val->Set(Nan::GetCurrentContext(), Nan::New("x").ToLocalChecked(), Nan::New(values->pasTop[i].x)).Check();
+    val->Set(Nan::GetCurrentContext(), Nan::New("y").ToLocalChecked(), Nan::New(values->pasTop[i].y)).Check();
+    val->Set(Nan::GetCurrentContext(), Nan::New("label").ToLocalChecked(), Nan::New(values->papszTopLabels[i]).ToLocalChecked()).Check();
+    top->Set(Nan::GetCurrentContext(), i, val).Check();
   }
   for (i=0; i<values->nRight; i++) {
     val = Nan::New<v8::Object>();
-    val->Set(Nan::GetCurrentContext(), Nan::New("x").ToLocalChecked(), Nan::New(values->pasRight[i].x));
-    val->Set(Nan::GetCurrentContext(), Nan::New("y").ToLocalChecked(), Nan::New(values->pasRight[i].y));
-    val->Set(Nan::GetCurrentContext(), Nan::New("label").ToLocalChecked(), Nan::New(values->papszRightLabels[i]).ToLocalChecked());
-    right->Set(Nan::GetCurrentContext(), i, val);
+    val->Set(Nan::GetCurrentContext(), Nan::New("x").ToLocalChecked(), Nan::New(values->pasRight[i].x)).Check();
+    val->Set(Nan::GetCurrentContext(), Nan::New("y").ToLocalChecked(), Nan::New(values->pasRight[i].y)).Check();
+    val->Set(Nan::GetCurrentContext(), Nan::New("label").ToLocalChecked(), Nan::New(values->papszRightLabels[i]).ToLocalChecked()).Check();
+    right->Set(Nan::GetCurrentContext(), i, val).Check();
   }
   for (i=0; i<values->nBottom; i++) {
     val = Nan::New<v8::Object>();
-    val->Set(Nan::GetCurrentContext(), Nan::New("x").ToLocalChecked(), Nan::New(values->pasBottom[i].x));
-    val->Set(Nan::GetCurrentContext(), Nan::New("y").ToLocalChecked(), Nan::New(values->pasBottom[i].y));
-    val->Set(Nan::GetCurrentContext(), Nan::New("label").ToLocalChecked(), Nan::New(values->papszBottomLabels[i]).ToLocalChecked());
-    bottom->Set(Nan::GetCurrentContext(), i, val);
+    val->Set(Nan::GetCurrentContext(), Nan::New("x").ToLocalChecked(), Nan::New(values->pasBottom[i].x)).Check();
+    val->Set(Nan::GetCurrentContext(), Nan::New("y").ToLocalChecked(), Nan::New(values->pasBottom[i].y)).Check();
+    val->Set(Nan::GetCurrentContext(), Nan::New("label").ToLocalChecked(), Nan::New(values->papszBottomLabels[i]).ToLocalChecked()).Check();
+    bottom->Set(Nan::GetCurrentContext(), i, val).Check();
   }
 
   // return object like this:
@@ -189,10 +189,10 @@ NAN_METHOD(MSLayer::GetGridIntersectionCoordinates) {
   //   bottom: [{position: 0, label: '123.00'}],
   // }
   v8::Local<v8::Object> result = Nan::New<v8::Object>();
-  result->Set(Nan::GetCurrentContext(), Nan::New("left").ToLocalChecked(), left);
-  result->Set(Nan::GetCurrentContext(), Nan::New("top").ToLocalChecked(), top);
-  result->Set(Nan::GetCurrentContext(), Nan::New("right").ToLocalChecked(), right);
-  result->Set(Nan::GetCurrentContext(), Nan::New("bottom").ToLocalChecked(), bottom);
+  result->Set(Nan::GetCurrentContext(), Nan::New("left").ToLocalChecked(), left).Check();
+  result->Set(Nan::GetCurrentContext(), Nan::New("top").ToLocalChecked(), top).Check();
+  result->Set(Nan::GetCurrentContext(), Nan::New("right").ToLocalChecked(), right).Check();
+  result->Set(Nan::GetCurrentContext(), Nan::New("bottom").ToLocalChecked(), bottom).Check();
   info.GetReturnValue().Set(result);
 }
 

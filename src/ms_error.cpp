@@ -15,7 +15,7 @@ void MSError::Initialize(v8::Local<v8::Object> target) {
       , NULL
       , MSError::NamedPropertyEnumerator);
 
-  target->Set(Nan::GetCurrentContext(), Nan::New("MSError").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
+  target->Set(Nan::GetCurrentContext(), Nan::New("MSError").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked()).Check();
   constructor.Reset(tpl);
 }
 

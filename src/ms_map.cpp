@@ -40,7 +40,7 @@ void MSMap::Initialize(v8::Local<v8::Object> target) {
   RO_ATTR(tpl, "extent", PropertyGetter);
   RO_ATTR(tpl, "layers", PropertyGetter);
 
-  target->Set(Nan::GetCurrentContext(), Nan::New("Map").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
+  target->Set(Nan::GetCurrentContext(), Nan::New("Map").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked()).Check();
   constructor.Reset(tpl);
 }
 

@@ -10,7 +10,7 @@ void MSProjection::Initialize(v8::Local<v8::Object> target) {
   RO_ATTR(tpl, "units", Units);
   RW_ATTR(tpl, "projString", ProjString, SetProjString);
 
-  target->Set(Nan::GetCurrentContext(), Nan::New("Projection").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
+  target->Set(Nan::GetCurrentContext(), Nan::New("Projection").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked()).Check();
   constructor.Reset(tpl);
 }
 

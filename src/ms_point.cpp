@@ -13,7 +13,7 @@ void MSPoint::Initialize(v8::Local<v8::Object> target) {
   Nan::SetPrototypeMethod(tpl, "project", Project);
   Nan::SetPrototypeMethod(tpl, "distanceToPoint", DistanceToPoint);
 
-  target->Set(Nan::GetCurrentContext(), Nan::New("Point").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
+  target->Set(Nan::GetCurrentContext(), Nan::New("Point").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked()).Check();
   constructor.Reset(tpl);
 }
 
