@@ -23,7 +23,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 var assert = require('assert');
 var util = require('util');
-var mapserver = require('../build/Debug/mapserver');
+var mapserver = require('../mapserver');
 var fs = require('fs');
 var path = require('path');
 var datadir = path.join(__dirname, 'data');
