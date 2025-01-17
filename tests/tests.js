@@ -23,7 +23,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 var assert = require('assert');
 var util = require('util');
-var mapserver = require('../mapserver');
+var mapserver = require('../build/Debug/mapserver');
 var fs = require('fs');
 var path = require('path');
 var datadir = path.join(__dirname, 'data');
@@ -175,7 +175,8 @@ describe('mapserver', function() {
       map = new mapserver.Map(mapfile, __dirname);
     }, function() {
       err = mapserver.getError();
-      console.log(util.inspect(err));
+      //console.log(util.inspect(err));
+      console.log(JSON.stringify(err));
     }, 'loading a valid map file with a data path should not throw an error.');
     assert.equal(map.mappath, __dirname, 'map did not load with correct data directory');
 
@@ -183,7 +184,8 @@ describe('mapserver', function() {
       map = new mapserver.Map(mapfile);
     }, function() {
       err = mapserver.getError();
-      console.log(util.inspect(err));
+      // console.log(util.inspect(err));
+      console.log(JSON.stringify(err));
     }, 'loading a valid map file with no data path should not throw an error.');
     assert.equal(path.relative(map.mappath, path.dirname(mapfile)), '', 'map did not compute correct default data directory');
 
@@ -191,7 +193,8 @@ describe('mapserver', function() {
       map = new mapserver.Map();
     }, function() {
       err = mapserver.getError();
-      console.log(util.inspect(err));
+      // console.log(util.inspect(err));
+      console.log(JSON.stringify(err));
     }, 'creating a blank map should not throw an error');
   });
 
