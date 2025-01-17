@@ -28,7 +28,7 @@
   "readmeFilename": "README.md",
   "gitHead": "32f694866ad22c3a033c4d907f20e4802bf728c5",
   "devDependencies": {
-    "nan": "^2.22.0",
-    "mocha": "^10.8.2"
+    "mocha": "^10.8.2",
+    "nan": "^2.22.0"
   }
 }
