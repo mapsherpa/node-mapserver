@@ -598,7 +598,7 @@ describe('mapserver', function() {
           numLabels = 109;
         } else if (ms_version == 70004){
           numLabels = 119;
-        } else if (ms_version == 80002){
+        } else if (ms_version >= 80000){
           numLabels = 111;
         } else {
           // don't know numbers for other versions
