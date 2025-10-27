@@ -78,13 +78,13 @@ NAN_METHOD(MSMap::New) {
       Nan::ThrowTypeError("Map constructor takes one or two string arguments");
       return;
     }
-    map = msLoadMap(TOSTR(info[0]), TOSTR(info[1]), NULL);
+    map = msLoadMap(TOSTR(info[0]), TOSTR(info[1]));
   } else if (info.Length() == 1) {
     if (!ISSTR(info, 0)) {
       Nan::ThrowTypeError("Map constructor takes one or two string arguments");
       return;
     }
-    map = msLoadMap(TOSTR(info[0]), NULL, NULL);
+    map = msLoadMap(TOSTR(info[0]), NULL);
   } else {
     map = msNewMapObj();
   }
@@ -207,7 +207,8 @@ NAN_METHOD(MSMap::SelectOutputFormat) {
     Nan::ThrowError("Output format not supported.");
     return;
   }
-  msApplyOutputFormat(&(map->this_->outputformat), format, MS_NOOVERRIDE);
+  msApplyOutputFormat(&(map->this_->outputformat), format, MS_NOOVERRIDE,
+    MS_NOOVERRIDE, MS_NOOVERRIDE );
 }
 
 NAN_METHOD(MSMap::SetSymbolSet) {

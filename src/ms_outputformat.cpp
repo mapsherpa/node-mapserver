@@ -45,7 +45,7 @@ NAN_METHOD(MSOutputFormat::New) {
     Nan::ThrowTypeError("MSOutputFormat requires two string arguments");
   }
 
-  outputFormatObj *format = msCreateDefaultOutputFormat(NULL, TOSTR(info[0]), TOSTR(info[1]), NULL);
+  outputFormatObj *format = msCreateDefaultOutputFormat(NULL, TOSTR(info[0]), TOSTR(info[1]));
 
   /* in the case of unsupported formats, msCreateDefaultOutputFormat
      should return NULL */

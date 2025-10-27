@@ -207,7 +207,7 @@ NAN_METHOD(MSLayer::UpdateFromString) {
     Nan::ThrowError("UpdateFromString requires one string argument");
     return;
   }
-  result = msUpdateLayerFromString(obj->this_, TOSTR(info[0]));
+  result = msUpdateLayerFromString(obj->this_, TOSTR(info[0]), MS_FALSE);
   info.GetReturnValue().Set(result);
 }
 
