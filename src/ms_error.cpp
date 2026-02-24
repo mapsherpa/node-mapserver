@@ -59,12 +59,28 @@ v8::Local<v8::Value> MSError::NewInstance(errorObj *err_ptr) {
 NAN_PROPERTY_GETTER(MSError::NamedPropertyGetter) {
   MSError *err = Nan::ObjectWrap::Unwrap<MSError>(info.Holder());
 
+  // --- ADD THIS SAFETY CHECK ---
+  if (!err || !err->this_) {
+    fprintf(stderr, "[DEBUG] MSError access on NULL pointer! Object: %p\n", (void*)err);
+    return;
+  }
+  // -----------------------------
+
   if (STRCMP(property, "code")) {
     info.GetReturnValue().Set(err->this_->code);
   } else if (STRCMP(property, "message")) {
-    info.GetReturnValue().Set(Nan::New(err->this_->message).ToLocalChecked());
+    // Also check if the string itself is null before passing to Nan::New
+    if (err->this_->message) {
+        info.GetReturnValue().Set(Nan::New(err->this_->message).ToLocalChecked());
+    } else {
+        info.GetReturnValue().Set(Nan::EmptyString());
+    }
   } else if (STRCMP(property, "routine")) {
-    info.GetReturnValue().Set(Nan::New(err->this_->routine).ToLocalChecked());
+    if (err->this_->routine) {
+        info.GetReturnValue().Set(Nan::New(err->this_->routine).ToLocalChecked());
+    } else {
+        info.GetReturnValue().Set(Nan::EmptyString());
+    }
   }
 }
 
