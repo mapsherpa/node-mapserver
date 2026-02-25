@@ -54,9 +54,11 @@ v8::Local<v8::Value> MSLayers::NewInstance(mapObj *ptr) {
 
 NAN_INDEX_GETTER(MSLayers::IndexGetter) {
   MSLayers *layers = Nan::ObjectWrap::Unwrap<MSLayers>(info.Holder());
-
   if ((int)index < layers->this_->numlayers) {
-    info.GetReturnValue().Set(MSLayer::NewInstance(GET_LAYER(layers->this_, index)));
+    layerObj* layer = GET_LAYER(layers->this_, index);
+    if (layer != NULL) { 
+      info.GetReturnValue().Set(MSLayer::NewInstance(layer));
+    }
   }
 }
 
@@ -67,8 +69,10 @@ NAN_PROPERTY_GETTER(MSLayers::NamedGetter) {
   } else {
     int i;
     for (i=0; i<layers->this_->numlayers; i++) {
-      if (STRCMP(property, GET_LAYER(layers->this_, i)->name)) {
-        info.GetReturnValue().Set(MSLayer::NewInstance(GET_LAYER(layers->this_, i)));
+      layerObj* layer = GET_LAYER(layers->this_, i);
+      if (layer != NULL && layer->name != NULL && STRCMP(property, layer->name)) {
+        info.GetReturnValue().Set(MSLayer::NewInstance(layer));
+        return;
       }
     }
   }

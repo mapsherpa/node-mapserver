@@ -85,11 +85,19 @@ NAN_GETTER(MSLayer::PropertyGetter) {
   MSLayer *obj = Nan::ObjectWrap::Unwrap<MSLayer>(info.Holder());
 
   if (STRCMP(property, "name")) {
-    info.GetReturnValue().Set(Nan::New(obj->this_->name).ToLocalChecked());
+    if (obj->this_->name) {
+      info.GetReturnValue().Set(Nan::New(obj->this_->name).ToLocalChecked());
+    } else {
+      info.GetReturnValue().Set(Nan::EmptyString());
+    }
   } else if (STRCMP(property, "status")) {
     info.GetReturnValue().Set(obj->this_->status);
   } else if (STRCMP(property, "metadata")) {
-    info.GetReturnValue().Set(MSHashTable::NewInstance(&(obj->this_->metadata)));
+    if (obj->this_ != NULL) {
+      info.GetReturnValue().Set(MSHashTable::NewInstance(&(obj->this_->metadata)));
+    } else {
+      info.GetReturnValue().Set(Nan::Null());
+    }
   } else if (STRCMP(property, "type")) {
     info.GetReturnValue().Set(obj->this_->type);
   } else if (STRCMP(property, "minscaledenom")) {

@@ -59,13 +59,12 @@ v8::Local<v8::Value> MSError::NewInstance(errorObj *err_ptr) {
 NAN_PROPERTY_GETTER(MSError::NamedPropertyGetter) {
   MSError *err = Nan::ObjectWrap::Unwrap<MSError>(info.Holder());
 
-  // --- ADD THIS SAFETY CHECK ---
   if (!err || !err->this_) {
-    fprintf(stderr, "[DEBUG] MSError access on NULL pointer! Object: %p\n", (void*)err);
-    return;
+    // fprintf(stderr, "[DEBUG] MSError access on NULL pointer! Object: %p\n", (void*)err);
+    // info.GetReturnValue().Set(Nan::Undefined()); // Add this line
+    // return;
+    return Nan::ThrowError("MapServer MSError: Internal pointer is NULL. The underlying MapServer error may have been cleared or not initialized.");
   }
-  // -----------------------------
-
   if (STRCMP(property, "code")) {
     info.GetReturnValue().Set(err->this_->code);
   } else if (STRCMP(property, "message")) {

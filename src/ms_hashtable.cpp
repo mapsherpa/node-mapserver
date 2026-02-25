@@ -58,6 +58,14 @@ v8::Local<v8::Value> MSHashTable::NewInstance(hashTableObj *ptr) {
 
 NAN_PROPERTY_GETTER(MSHashTable::NamedPropertyGetter) {
   MSHashTable *table = Nan::ObjectWrap::Unwrap<MSHashTable>(info.Holder());
+
+  // Safety Check: Ensure the wrapper and the internal pointer exist
+  if (!table || !table->this_) {
+    fprintf(stderr, "[DEBUG] MSHashtable getter access on NULL pointer! Object: %p\n", (void*)table);
+    info.GetReturnValue().Set(Nan::Undefined());
+    return;
+  }
+
   const char *value = msLookupHashTable(table->this_, TOSTR(property));
   if (value == NULL){
     info.GetReturnValue().Set(Nan::Undefined());
@@ -68,6 +76,13 @@ NAN_PROPERTY_GETTER(MSHashTable::NamedPropertyGetter) {
 
 NAN_PROPERTY_SETTER(MSHashTable::NamedPropertySetter) {
   MSHashTable *table = Nan::ObjectWrap::Unwrap<MSHashTable>(info.Holder());
+
+  // Safety Check: Prevent passing a NULL pointer to msInsertHashTable
+  if (!table || !table->this_) {
+    fprintf(stderr, "[DEBUG] MSHashtable setter access on NULL pointer! Object: %p\n", (void*)table);
+    return; 
+  }
+
   msInsertHashTable(table->this_, *v8::String::Utf8Value(v8::Isolate::GetCurrent(), property), TOSTR(value));
   info.GetReturnValue().Set(value);
 }

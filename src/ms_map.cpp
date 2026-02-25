@@ -337,15 +337,25 @@ NAN_GETTER(MSMap::PropertyGetter) {
   } else if (STRCMP(property, "outputformat")) {
     info.GetReturnValue().Set(MSOutputFormat::NewInstance(map->this_->outputformat));
   } else if (STRCMP(property, "projection")) {
-    info.GetReturnValue().Set(MSProjection::NewInstance(&map->this_->projection));
+    // Check if the internal projection object is valid before wrapping
+    if (map->this_ != NULL) {
+      info.GetReturnValue().Set(MSProjection::NewInstance(&map->this_->projection));
+    } else {
+      info.GetReturnValue().Set(Nan::Null());
+    }
   } else if (STRCMP(property, "layers")) {
     info.GetReturnValue().Set(MSLayers::NewInstance(map->this_));
   } else if (STRCMP(property, "metadata")) {
-#if MS_VERSION_NUM < 60400
-    info.GetReturnValue().Set(Nan::New<v8::Object>());
-#else
-    info.GetReturnValue().Set(MSHashTable::NewInstance(&(map->this_->web.metadata)));
-#endif
+  #if MS_VERSION_NUM < 60400
+      info.GetReturnValue().Set(Nan::New<v8::Object>());
+  #else
+      // Ensure the map pointer itself is valid before accessing the web.metadata address
+      if (map->this_ != NULL) {
+        info.GetReturnValue().Set(MSHashTable::NewInstance(&(map->this_->web.metadata)));
+      } else {
+        info.GetReturnValue().Set(Nan::Null());
+      }
+  #endif
   } else if (STRCMP(property, "extent")) {
     info.GetReturnValue().Set(MSRect::NewInstance(&map->this_->extent));
   }
@@ -385,10 +395,13 @@ NAN_SETTER(MSMap::PropertySetter) {
 struct drawmap_baton {
   uv_work_t request;
   MSMap *map;
-  errorObj * error;
   int size;
   char * data;
   Nan::Persistent<v8::Function> cb;
+  int error_code;
+  std::string error_message;
+  std::string error_routine;
+  bool has_error;
 };
 
 void FreeImageBuffer(char *data, void *hint) {
@@ -397,35 +410,58 @@ void FreeImageBuffer(char *data, void *hint) {
 
 void MSMap::EIO_DrawMap(uv_work_t *req) {
   drawmap_baton *baton = static_cast<drawmap_baton*>(req->data);
-
   imageObj * im = msDrawMap(baton->map->this_, MS_FALSE);
 
   if (im != NULL) {
-    baton->error = NULL;
+    baton->has_error = false;
     baton->data = (char *)msSaveImageBuffer(im, &baton->size, baton->map->this_->outputformat);
     msFreeImage(im);
   } else {
-    baton->error = msGetErrorObj();
+    errorObj *err = msGetErrorObj();
+    baton->has_error = true;
+    if (err) {
+      baton->error_code = err->code;
+      baton->error_message = err->message ? err->message : "Unknown error";
+      baton->error_routine = err->routine ? err->routine : "";
+    } else {
+      baton->error_code = 0;
+      baton->error_message = "msDrawMap returned NULL but no error was set";
+    }
     baton->data = NULL;
   }
 }
 
 void MSMap::EIO_AfterDrawMap(uv_work_t *req) {
   Nan::HandleScope scope;
-
   drawmap_baton *baton = static_cast<drawmap_baton *>(req->data);
   Nan::AsyncResource resource("mapserver:callback");
-  if (baton->data != NULL) {
-    v8::Local<v8::Value> buffer = Nan::NewBuffer(baton->data, baton->size, FreeImageBuffer, NULL).ToLocalChecked();
-    v8::Local<v8::Value> argv[2] = { Nan::Null(), buffer };
-    Nan::Callback *callback = new Nan::Callback(Nan::New(baton->cb));
-    callback->Call(Nan::GetCurrentContext()->Global(), 2, argv, &resource);
 
+  v8::Local<v8::Value> argv[2];
+
+  if (baton->data != NULL) {
+    // Success Case
+    argv[0] = Nan::Null();
+    argv[1] = Nan::NewBuffer(baton->data, baton->size, FreeImageBuffer, NULL).ToLocalChecked();
   } else {
-    v8::Local<v8::Value> argv[1] = { MSError::NewInstance(baton->error) };
-    Nan::Callback *callback = new Nan::Callback(Nan::New(baton->cb));
-    callback->Call(Nan::GetCurrentContext()->Global(), 1, argv, &resource);
+    // Error Case: Use the strings we copied into the baton during EIO_DrawMap
+    if (baton->has_error) {
+      // Option A: Create a standard JS Error with the message we saved
+      v8::Local<v8::Value> err = Nan::Error(baton->error_message.c_str());
+      
+      // Optionally attach the code and routine to the error object
+      v8::Local<v8::Object> errObj = err.As<v8::Object>();
+      Nan::Set(errObj, Nan::New("code").ToLocalChecked(), Nan::New(baton->error_code));
+      Nan::Set(errObj, Nan::New("routine").ToLocalChecked(), Nan::New(baton->error_routine.c_str()).ToLocalChecked());
+      
+      argv[0] = err;
+    } else {
+      argv[0] = Nan::Error("Unknown MapServer error occurred during DrawMap");
+    }
+    argv[1] = Nan::Null();
   }
+
+  Nan::Callback *callback = new Nan::Callback(Nan::New(baton->cb));
+  callback->Call(Nan::GetCurrentContext()->Global(), 2, argv, &resource);
 
   baton->map->Unref();
   baton->cb.Reset();
@@ -484,7 +520,14 @@ NAN_METHOD(MSMap::DrawMap) {
       argv[1] = Nan::NewBuffer(data, size, FreeImageBuffer, NULL).ToLocalChecked();
     } else {
       errorObj * err = msGetErrorObj();
-      argv[0] = MSError::NewInstance(err);
+      
+      if (err != NULL) {
+        argv[0] = MSError::NewInstance(err);
+      } else {
+        // If there's no specific error object, return a generic JS error or Null
+        argv[0] = Nan::Error("DrawMap failed but no MapServer error was reported.");
+      }
+      
       argv[1] = Nan::Null();
     }
 

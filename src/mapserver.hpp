@@ -57,7 +57,13 @@ namespace node_mapserver {
   static NAN_METHOD(getError) {
     Nan::HandleScope scope;
     errorObj *err = msGetErrorObj();
-    info.GetReturnValue().Set(MSError::NewInstance(err));
+    
+    if (err != NULL) {
+      info.GetReturnValue().Set(MSError::NewInstance(err));
+    } else {
+      // Return null to JavaScript if there are no errors in the stack
+      info.GetReturnValue().Set(Nan::Null());
+    }
   }
 }
 
