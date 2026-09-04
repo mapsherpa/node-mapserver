@@ -16,6 +16,7 @@ void MSMap::Initialize(v8::Local<v8::Object> target) {
   Nan::SetPrototypeMethod(tpl, "setSymbolSet", SetSymbolSet);
   Nan::SetPrototypeMethod(tpl, "save", Save);
   Nan::SetPrototypeMethod(tpl, "getLabelCache", GetLabelCache);
+  Nan::SetPrototypeMethod(tpl, "free", Free);
 
   /* Read-Write Properties */
   RW_ATTR(tpl, "name", PropertyGetter, PropertySetter);
@@ -66,8 +67,8 @@ NAN_METHOD(MSMap::New) {
 
   if (info[0]->IsExternal()) {
     v8::Local<v8::External> ext = info[0].As<v8::External>();
-    void* ptr = ext->Value();
-    obj = static_cast<MSMap*>(ptr);
+    mapObj* ptr = static_cast<mapObj*>(ext->Value());
+    obj = new MSMap(ptr);
     obj->Wrap(info.This());
     info.GetReturnValue().Set(info.This());
     return;
@@ -101,12 +102,12 @@ NAN_METHOD(MSMap::New) {
 
 v8::Local<v8::Value> MSMap::NewInstance(mapObj *ptr) {
   Nan::EscapableHandleScope scope;
-  MSMap* obj = new MSMap();
-  obj->this_ = ptr;
-  v8::Local<v8::Value> ext = Nan::New<v8::External>(obj);
+  
+  v8::Local<v8::External> ext = Nan::New<v8::External>(ptr);
+  v8::Local<v8::Value> argv[1] = { ext };
   
   v8::Local<v8::Function> f = Nan::GetFunction(Nan::New(constructor)).ToLocalChecked();
-  Nan::MaybeLocal<v8::Object> maybe_local = Nan::NewInstance(f, 1, &ext);
+  Nan::MaybeLocal<v8::Object> maybe_local = Nan::NewInstance(f, 1, argv);
 
   return scope.Escape(maybe_local.ToLocalChecked());
 }
@@ -117,6 +118,15 @@ NAN_METHOD(MSMap::Clone) {
   if (msCopyMap(_copy, map->this_) == MS_SUCCESS) {
     info.GetReturnValue().Set(MSMap::NewInstance(_copy));
   }
+}
+
+NAN_METHOD(MSMap::Free) {
+  MSMap *map = Nan::ObjectWrap::Unwrap<MSMap>(info.Holder());
+  if (map && map->this_) {
+    msFreeMap(map->this_);
+    map->this_ = NULL;
+  }
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
 

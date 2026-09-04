@@ -25,6 +25,7 @@ public:
   static NAN_METHOD(SelectOutputFormat);
   static NAN_METHOD(SetExtent);
   static NAN_METHOD(DrawMap);
+  static NAN_METHOD(Free);
   static NAN_METHOD(Save);
   static void EIO_DrawMap(uv_work_t* req);
   static void EIO_AfterDrawMap(uv_work_t* req);
